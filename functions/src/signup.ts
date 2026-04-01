@@ -3,13 +3,20 @@ import { Request, Response } from "express";
 import { UserDataRequest } from "./firestore/dtos/user-data-request";
 import { UserService } from "./services/user-service";
 import { UserRegisterLogic } from "./business-logics/user-register-logic";
+import { verifyFirebaseToken } from "./auth";
 
 
 export const registerUser = onRequest(
     { cors: true },
     async (request: Request, response: Response<any>) => {
         try {
+            const decodedToken = await verifyFirebaseToken(request.headers.authorization);
             const userData = UserDataRequest.fromInterface(request.body);
+
+            if (decodedToken.uid !== userData.uid) {
+                response.status(403).send({ message: "Token/user mismatch" });
+                return;
+            }
 
             const userService = new UserService();
             const userLogic = new UserRegisterLogic(userService);
