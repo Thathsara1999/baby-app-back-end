@@ -12,14 +12,31 @@ export const createImmunizationData = onRequest(
     async (request: Request, response: Response<any>) => {
 
         try {
+            if (request.method !== "POST") {
+                response.status(405).send({ message: "Method Not Allowed" });
+                return;
+            }
 
             const immunizationData = ImmunizationRequest.fromInterface(request.body);
+
+            if (!immunizationData.childId?.trim()) {
+                response.status(400).send({ message: "childId is required" });
+                return;
+            }
+
             const immunizationService = new ImmunizationService();
             const immunizationLogic = new ImmunizationLogic(immunizationService);
 
-            await immunizationLogic.saveImmunizationRecord(immunizationData);
-            response.status(200).send({ message: "Immunization record saved successfully" });
-            return
+            const savedRecord = await immunizationLogic.saveImmunizationRecord(
+                immunizationData,
+                immunizationData.childId,
+            );
+
+            response.status(200).send({
+                message: "Immunization record saved successfully",
+                record: savedRecord,
+            });
+            return;
         }
         catch (error) {
             console.log(error);

@@ -13,6 +13,7 @@ export class ImmunizationRequest {
 
     createdAt?: Timestamp;
     updatedAt?: Timestamp;
+    childId!: string;
 
     static fromInterface(json: Partial<ImmunizationRequest>): ImmunizationRequest {
         const model = new ImmunizationRequest();
@@ -23,6 +24,7 @@ export class ImmunizationRequest {
         model.batchNo = json.batchNo || "";
         model.givenBy = json.givenBy || "";
         model.nextDue = json.nextDue || "";
+        model.childId = json.childId || "";
         return model;
     }
 }

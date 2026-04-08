@@ -1,18 +1,74 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userRole() {
+      return userDoc().data.role;
+    }
+
+    function userArea() {
+      return userDoc().data.area;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && userRole() == "admin";
+    }
+
+    function babyArea(data) {
+      return data.area != null ? data.area : data.midwifeArea;
+    }
+
+    function canAccessArea(areaValue) {
+      return isSignedIn() && (isAdmin() || (areaValue != null && areaValue == userArea()));
+    }
+
+    function canAccessBabyDoc(babyId) {
+      let babyDoc = get(/databases/$(database)/documents/babies/$(babyId));
+      return canAccessArea(babyArea(babyDoc.data));
+    }
+
+    // User profile read/write for own account, admin can read all.
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+
+    // Child documents used by the BabyDetails page.
+    match /babies/{babyId} {
+      allow read, write: if canAccessBabyDoc(babyId);
+
+      match /{subCollection}/{docId} {
+        allow read, write: if canAccessBabyDoc(babyId);
+      }
+    }
+
+    // Existing birth records flow used by dashboard + functions.
+    match /birthData/{recordId} {
+      allow read, write: if canAccessArea(resource.data.midwifeArea);
+      allow create: if canAccessArea(request.resource.data.midwifeArea);
+    }
+
+    // Optional legacy children path used by old Profile code.
+    match /children/{childId} {
+      allow read, write: if isSignedIn() && (isAdmin() || request.auth.uid != null);
+
+      match /{subCollection}/{docId} {
+        allow read, write: if isSignedIn() && (isAdmin() || request.auth.uid != null);
+      }
+    }
+
+    // Deny everything else by default.
     match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2026, 2, 22);
+      allow read, write: if false;
     }
   }
 }

@@ -1,0 +1,17 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAyJLUpzkPTkEhWQ_J05-5-bzN-WcucbiI",
+  authDomain: "child-health-system-6ba6d.firebaseapp.com",
+  projectId: "child-health-system-6ba6d",
+  storageBucket: "child-health-system-6ba6d.firebasestorage.app",
+  messagingSenderId: "1030939299208",
+  appId: "1:1030939299208:web:a0237c00b6b80d26663e3d"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);

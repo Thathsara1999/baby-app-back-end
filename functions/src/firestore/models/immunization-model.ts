@@ -36,6 +36,7 @@ export class ImmunizationModel {
 
     createdAt?: Timestamp;
     updatedAt?: Timestamp;
+    childId?: string;
 
     // ---------- Firestore save ----------
     static modelForDatabase(
@@ -49,6 +50,7 @@ export class ImmunizationModel {
         model.batchNo = json.batchNo;
         model.givenBy = json.givenBy;
         model.nextDue = json.nextDue;
+        model.childId = json.childId;
         model.createdAt = Timestamp.now();
         model.updatedAt = Timestamp.now();
 

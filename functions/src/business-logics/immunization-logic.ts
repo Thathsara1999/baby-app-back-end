@@ -9,10 +9,16 @@ export class ImmunizationLogic {
         this._immunizationService = immunizationService;
     }
 
-    async saveImmunizationRecord(data: ImmunizationRequest): Promise<void> {
+    async saveImmunizationRecord(data: ImmunizationRequest, childId: string): Promise<ImmunizationRequest> {
         try {
             const model = ImmunizationModel.modelForDatabase(data);
-            await this._immunizationService.saveRecord(model);
+            const id = await this._immunizationService.saveRecord(childId, model);
+
+            return {
+                id,
+                ...model,
+                childId,
+            } as ImmunizationRequest;
         } catch (error) {
             console.error("Error saving immunization record:", error);
             throw new Error("Failed to save immunization record");
