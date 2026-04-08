@@ -3,6 +3,7 @@
 //export * from "./baby-data";
 export * from "./create-immunization-data";
 export * from "./create-neonatal-exam-data";
+export * from "./create-growth-record-data";
 export * from "./auth";
 export * from "./signup";
 export * from "./midwife-profile";

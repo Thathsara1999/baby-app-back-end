@@ -19,7 +19,7 @@ export class BabyRegisterService {
         try {
 
             await firestoreInstance
-                .collection("birthData")
+                .collection("children")
                 .add({
                     ...data,
                     ...ownership,
@@ -32,7 +32,7 @@ export class BabyRegisterService {
 
     async getBirthDataByArea(midwifeArea: string) {
         const snapshot = await firestoreInstance
-            .collection("birthData")
+            .collection("children")
             .where("midwifeArea", "==", midwifeArea)
             .orderBy("createdAt", "desc")
             .get();

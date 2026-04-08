@@ -5,7 +5,7 @@ import { Timestamp } from "firebase-admin/firestore";
 
 import { firestoreInstance } from "./services/firebase";
 
-export const createNeonatalExamData = onRequest(
+export const createGrowthRecordData = onRequest(
     { cors: true },
     async (request: Request, response: Response<any>) => {
         try {
@@ -16,29 +16,43 @@ export const createNeonatalExamData = onRequest(
 
             const payload = (request.body ?? {}) as Record<string, unknown>;
             const childId = String(payload.childId ?? "").trim();
+            const date = String(payload.date ?? "").trim();
+            const weight = Number(payload.weight);
+            const height = Number(payload.height);
 
             if (!childId) {
                 response.status(400).send({ message: "childId is required" });
                 return;
             }
 
+            if (!date || Number.isNaN(weight) || Number.isNaN(height)) {
+                response
+                    .status(400)
+                    .send({ message: "date, weight, and height are required" });
+                return;
+            }
+
             const docRef = await firestoreInstance
                 .collection("children")
                 .doc(childId)
-                .collection("neonatalExamination")
+                .collection("growthRecords")
                 .add({
-                    ...payload,
                     childId,
-                    updatedAt: Timestamp.now(),
+                    date,
+                    weight,
+                    height,
                     createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now(),
                 });
 
             response.status(200).send({
-                message: "Neonatal examination saved successfully",
+                message: "Growth record saved successfully",
                 record: {
                     id: docRef.id,
-                    ...payload,
                     childId,
+                    date,
+                    weight,
+                    height,
                 },
             });
             return;
